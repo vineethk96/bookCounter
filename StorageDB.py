@@ -42,6 +42,8 @@ class DataBase:
     def buy_book(self, book, amt):
         if amt is not int:
             return "Error: Count must be an integer value"
+        elif amt < 0:
+            return "Error: Count must be a positive integer"
         record = self.collection.find_one({'Name': book['Name'], 'Author': book['Author']})
         if record is not None:
             stock = record['stock']
@@ -57,6 +59,8 @@ class DataBase:
     def sell_book(self, book, amt):
         if amt is not int:
             return "Error: Count must be an integer value"
+        elif amt < 0:
+            return "Error: Count must be a positive integer"
         record = self.collection.find_one({'Name': book['Name'], 'Author': book['Author']})
         if record is not None:
             stock = record['stock']
