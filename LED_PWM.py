@@ -22,28 +22,59 @@ class LED_PWM:
     green.start(0)
     blue.start(0)
 
+    rInten = 0
+    gInten = 0
+    bInten = 0
+
+    LED_status = False
+
     def __init__(self):
         return
-    
-    def setIntensity(self, color, dutyCycle):
 
-        if(color == 1):     # red
-            self.red.ChangeDutyCycle(dutyCycle)
-            self.green.ChangeDutyCycle(0)
-            self.blue.ChangeDutyCycle(0)
-            print("red LED ON")
-        elif(color == 2):   # green
-            self.red.ChangeDutyCycle(0)
-            self.green.ChangeDutyCycle(dutyCycle)
-            self.blue.ChangeDutyCycle(0)
-            print("Green LED ON")
-        elif(color == 3):   # blue
-            self.red.ChangeDutyCycle(0)
-            self.green.ChangeDutyCycle(0)
-            self.blue.ChangeDutyCycle(dutyCycle)
-            print("Blue LED ON")
+    def turnLED_ON(self):
+        self.red.ChangeDutyCycle(0)
+        self.green.ChangeDutyCycle(0)
+        self.blue.ChangeDutyCycle(0)
+        self.LED_status = True
+        return "LED on"
+
+    def turnLED_OFF(self):
+        self.red.ChangeDutyCycle(0)
+        self.green.ChangeDutyCycle(0)
+        self.blue.ChangeDutyCycle(0)
+        self.LED_status = False
+        return "LED off"
+
+    def changeIntensity(self, color, intensity):
+
+        if (self.LED_status):
+            if(color == "red"):         # red
+                self.rInten = intensity
+            elif(color == "green"):     # green
+                self.gInten = intensity
+            elif(color == "blue"):      # blue
+                self.bInten = intensity
+            else:
+                print("Invalid Color choice")
+
+            self.red.ChangeDutyCycle(self.rInten)
+            self.green.ChangeDutyCycle(self.gInten)
+            self.blue.ChangeDutyCycle(self.bInten)
+
+            return("Successfully set " + color + "\'s intensity to " + str(intensity))
+
         else:
-            print("Invalid Color choice")
+            return("LED is off")
+        
+    def info(self):
+        LED_Info = {
+            "red" : self.rInten,
+            "green" : self.gInten,
+            "blue" : self.bInten,
+            "status" : int(self.LED_status)
+            }
+        print(LED_Info)
+        return LED_Info
             
 
 if __name__ == "__main__":
@@ -52,20 +83,16 @@ if __name__ == "__main__":
     #test this class
     obj = LED_PWM()
 
+    obj.turnLED_ON()
+
     for x in range(0, 100):
-        obj.setIntensity(1, x)
-        time.sleep(0.125)
-        print("red: " + str(x))
+        obj.changeIntensity("red", x)
+        #time.sleep(0.125)
+        obj.changeIntensity("green", x)
+        #time.sleep(0.125)
+        obj.changeIntensity("blue", x)
+        #time.sleep(0.125)
 
-    for y in range(0, 100):
-        obj.setIntensity(2, y)
-        time.sleep(0.125)
-        print("green: " + str(y))
+    obj.turnLED_OFF()
 
-
-    for z in range(0, 100):
-        obj.setIntensity(3, z)
-        time.sleep(0.125)
-        print("blue: " + str(z))
-
-    
+    obj.info()
