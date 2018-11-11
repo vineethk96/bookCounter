@@ -19,40 +19,36 @@ LED_obj = LED_PWM.LED_PWM()
 
 @app.route('/LED/on', methods=['POST'])
 def LED_ON():
-    LED_obj.turnLED_ON()
-    return
+    return LED_obj.turnLED_ON()
 
 @app.route('/LED/off', methods=['POST'])
 def LED_OFF():
-    LED_obj.turnLED_OFF()
-    return
+    return LED_obj.turnLED_OFF()
 
 @app.route('/LED', methods=['POST'])
 def LED():
     LEDDict = request.get_json()
-    color = LEDDict[color]
-    intensity = LEDDict[intensity]
+    color = LEDDict["color"]
+    intensity = LEDDict["intensity"]
     
-    LED_obj.changeIntensity(color, intensity)
-    return
+    return LED_obj.changeIntensity(color, intensity)
 
 @app.route('/LED/info', methods=['GET'])
 def LED_INFO():
-    return LED_obj.info()
+    return str(LED_obj.info())
 
 #*******************************
 
-
-
 if __name__ == '__main__':
 
+#******************** Z E R O C O N F ********************
+
+    # ping google to grab my IP address
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(('google.com', 80))
-    IP = s.getsockname()[0]
-    print(IP)
-    
+    IP = s.getsockname()[0]    
 
-    desc = {'path': '/I<3Mo/'}
+    desc = {'path': ''}
 
     info = ServiceInfo("_http._tcp.local.",
                        "Team7LED_Rpi._http._tcp.local.",
@@ -62,6 +58,8 @@ if __name__ == '__main__':
     zeroconf = Zeroconf()
     print("Registration of a service, press Ctrl-C to exit...")
     zeroconf.register_service(info)
+
+    # testing to look for zeroconf connection
     try:
         while True:
             sleep(0.1)

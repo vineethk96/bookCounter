@@ -6,6 +6,7 @@ import time
 
 class LED_PWM:
 
+    # setup the GPIO pins for use
     GPIO.setmode(GPIO.BCM)
 
     GPIO.setwarnings(False)
@@ -13,28 +14,33 @@ class LED_PWM:
     GPIO.setup(21, GPIO.OUT)
     GPIO.setup(20, GPIO.OUT)
     GPIO.setup(16, GPIO.OUT)
-        
+
+    # specify which ports are being used for what
     red   = GPIO.PWM(21, 100)      # red LED at 1000 Hz
     green = GPIO.PWM(20, 100)      # green LED at 1000 Hz
     blue  = GPIO.PWM(16, 100)      # blue LED at 1000 Hz
 
+    # begin the PWM
     red.start(0)
     green.start(0)
     blue.start(0)
 
+    # set the initial intensity values
     rInten = 0
     gInten = 0
     bInten = 0
 
+    #set the status of the LED. It is initally off. 
     LED_status = False
 
     def __init__(self):
         return
 
+    # flask API functions
     def turnLED_ON(self):
-        self.red.ChangeDutyCycle(0)
-        self.green.ChangeDutyCycle(0)
-        self.blue.ChangeDutyCycle(0)
+        self.red.ChangeDutyCycle(self.rInten)
+        self.green.ChangeDutyCycle(self.gInten)
+        self.blue.ChangeDutyCycle(self.bInten)
         self.LED_status = True
         return "LED on"
 
@@ -73,12 +79,10 @@ class LED_PWM:
             "blue" : self.bInten,
             "status" : int(self.LED_status)
             }
-        print(LED_Info)
         return LED_Info
             
 
 if __name__ == "__main__":
-    print("This is LED_PWM.py")
 
     #test this class
     obj = LED_PWM()
@@ -87,11 +91,11 @@ if __name__ == "__main__":
 
     for x in range(0, 100):
         obj.changeIntensity("red", x)
-        #time.sleep(0.125)
+        time.sleep(0.125)
         obj.changeIntensity("green", x)
-        #time.sleep(0.125)
+        time.sleep(0.125)
         obj.changeIntensity("blue", x)
-        #time.sleep(0.125)
+        time.sleep(0.125)
 
     obj.turnLED_OFF()
 
