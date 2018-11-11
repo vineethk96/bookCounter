@@ -1,4 +1,4 @@
-import sys, os, socket, subprocess
+import sys, os, socket, subprocess, socket
 from flask import Flask, request, Response
 from functools import wraps
 from AuthDB import DataBase
@@ -10,16 +10,16 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() == 'sh'
 
 def find_service(NAME, TYPE):
-    print("Finding address")
     info = zeroconf.get_service_info(TYPE, NAME + '.' + TYPE)
-    print(info)
-    addr = socket.inet_ntoa(info.address)
-    print(addr)
-    return str(addr)
+    if info is not None:
+        addr = socket.inet_ntoa(info.address)
+        return str(addr)
 
 app = Flask(__name__)
 UPLOAD_FOLDER = os.getcwd()
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
 def check_auth(username, password):
     return Auth_db.authenticate(username, password)
 def authenticate():
@@ -40,8 +40,8 @@ def new_user():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    Auth_db.add_user(username, password)
-    return username + ' ' + password
+    ret = Auth_db.add_user(username, password)
+    return ret
 
 @app.route('/upload/<server_name>', methods=['POST'])
 @requires_auth
@@ -50,18 +50,20 @@ def upload(server_name):
     TYPE = "_http._tcp.local."
 
     if (server_name == 'led'):
-        NAME = "LED"
+        NAME = "Team7LED_Rpi"
     elif (server_name == 'storage'):
         NAME = 'Team 7\'s Storage'
-    print("Got upload command")
     addr = find_service(NAME, TYPE)
-    file = request.files['file']
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        print("Saved file")
-        subprocess.Popen(["bash", filename, addr])
-    return 'Done'
+    if addr is not None:
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            subprocess.Popen(["bash", filename, addr])
+
+            return "Done"
+        return "Invalid file"
+    return 'Could not find service'
         
         
 if __name__ == "__main__":
@@ -71,4 +73,7 @@ if __name__ == "__main__":
     Auth_db = DataBase()
     zeroconf = Zeroconf()
     #find_service(NAME, TYPE)
-    app.run(debug=True, host='localhost')
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(("google.com", 80))
+    host_addr = sock.getsockname()[0]
+    app.run(debug=True, host=host_addr)

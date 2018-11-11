@@ -20,10 +20,15 @@ class DataBase:
                 self.collection = self.db['users']
             except:
                 print("Could not connect to MongoDB")
+    def __del__(self):
+        self.conn.drop_database('db')
     def add_user(self, user, password):
         new_user = {'username': user, 'password': password}
-        self.collection.insert_one(new_user)
-        print("added user " + user)
+        record = self.collection.find_one(new_user)
+        if record is None:
+            self.collection.insert_one(new_user)
+            return "Successfully added user " + user
+        return "User " + user + " already exists"
     def authenticate(self, username, password):
         credentials = {'username': username, 'password': password}
         record = self.collection.find_one(credentials)
@@ -31,6 +36,3 @@ class DataBase:
             return False
         return True
 
-
-if __name__ == "__main__":
-    print("This is AuthDB.py")
