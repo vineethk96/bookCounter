@@ -1,4 +1,4 @@
-import sys, os, socket, subprocess, socket
+import sys, os, socket, subprocess
 from flask import Flask, request, Response
 from functools import wraps
 from AuthDB import DataBase
