@@ -3,11 +3,11 @@
 ## Libraries Used
 |AuthDB.py|service.py|StorageDB.py|storage.py|LED_PWM.py|led.py|
 |:-:|:-:|:-:|:-:|:-:|:-:|
-|||sys|flask||sys|
-|||pymongo|socket|RPi.GPIO|socket|
-||||zeroconf|time|logging|
-|||||time|
-|||||zeroconf|
+|||sys|flask|RPi.GPIO|sys|
+|||pymongo|socket|time|socket|
+||||zeroconf||logging|
+||||||time|
+||||||zeroconf|
 
 
 
@@ -65,6 +65,40 @@ type ```import storage```, followed by ```help(storage)```.
 ## LED_PWM.py
 ### Author
 Vineeth Kirandumkara
+### Description
+This file contains an encapsulated class for all GPIO LED functions.The LED API can access these functions to make the LED change colors and intensity.
+### Structure
+* ```rInten``` = R-channel Intensity
+* ```gInten``` = G-channel Intensity
+* ```bInten``` = B-channel Intensity
+
+1. turnLED_ON()
+    * Sets each of the R, G, and B channels to their set intensity values.
+    * Sets the boolean value for LED to on/True.
+2. turnLED_OFF()
+    * Sets each of the R, G, and B channels to an intensity value of 0.
+    * Sets the boolean value for LED to off/False.
+3. changeIntensity(```color```, ```intensity```)
+    * Sets the intensity value for the required color to the ```intensity``` value.
+    * Updates the colors duty cycles.
+4. info()
+    * Creates a Dictionary that contains all the requred values and returns it.
+
 ## led.py
 ### Author
 Vineeth Kirandumkara
+### Description
+This file creates the ZeroConf connection, and the Flash REST-API to access the encapsulated LED_PWM class.
+### Structure
+* POST Requests
+    1. ```/LED/on```
+        * Returns ```turnLED_ON()```
+    2. ```/LED/off```
+        * Returns ```turnLED_OFF()```
+    3. ```/LED```
+        * Gets the JSON Dictionary from the Client
+        * Pulls the ```color``` and ```intensity``` values from the dictionary
+        * Returns ```changeIntensity(color, intensity)```
+* GET Requests
+    1. ```/LED/info```
+        * Returns typecasted ```info()```
