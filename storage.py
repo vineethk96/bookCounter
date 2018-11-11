@@ -1,10 +1,19 @@
-from zeroconf import ServiceInfo, Zeroconf
 from flask import Flask, request
+import socket
+from zeroconf import ServiceInfo, Zeroconf
 
 from StorageDB import DataBase
 
+###############################################################################
+# Flask Server
+
 app = Flask(__name__)
 database = DataBase()
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("google.com", 80))
+ip = s.getsockname()[0]
+
 
 @app.route("/book/add", methods=["POST"])
 def add():
@@ -56,10 +65,27 @@ def list():
              "Msg" : "Ok. Get " + str(len(book_list)) + " books' information"}
     return str(value)
 
+###############################################################################
+# Zeroconf
+
+def get_zeroconf_info():
+    ''' Returns zeroconf service info.'''
+    desc = {"path" : "storage"}
+
+    info = ServiceInfo("_http._tcp.local.",
+                       "Team 7's Storage._http._tcp.local.",
+                       socket.inet_aton(ip), 5000, 0, 0, desc,
+                       "Team7-Storage.local.")
+    return info
+
 if __name__ == '__main__':
+    zeroconf = Zeroconf()
+    info = get_zeroconf_info()
+    zeroconf.register_service(info)
     try:
-        app.run(host='localhost', debug=True)
+        app.run(host=ip, debug=True)
     except KeyboardInterrupt:
         pass
     finally:
+        zeroconf.unregister_service(info)
         del(database)
