@@ -3,9 +3,13 @@
 ## Libraries Used
 |AuthDB.py|service.py|StorageDB.py|storage.py|LED_PWM.py|led.py|
 |:-:|:-:|:-:|:-:|:-:|:-:|
-|||sys|flask|||
-|||pymongo|socket||
-||||zeroconf||
+|||sys|flask||sys|
+|||pymongo|socket|RPi.GPIO|socket|
+||||zeroconf|time|logging|
+|||||time|
+|||||zeroconf|
+
+
 
 ## AuthDB.py
 ### Author
